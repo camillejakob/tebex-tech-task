@@ -4,41 +4,25 @@ namespace App\Services;
 
 use App\Contracts\LookupService;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Client\RequestException;
 
-class XblService implements LookupService
+class XblService extends AbstractLookupService
 {
+    public string $keyType, $key;
 
-    public static function type(): string
+    public static function service(): string
     {
         return 'xbl';
     }
 
-    /**
-     * @throws RequestException
-     */
-    public function lookup(?string $username, ?string $id)
+    protected function endpoint(): string
     {
-        $url = $this->getUrl(username: $username, id: $id);
-
-        try {
-            $response = Http::get($url)->throw();
-
-            $result = json_decode($response->body());
-
-            // todo: cache result?
-
-            return $result;
-        } catch (\Exception $e) {
-            report($e);
-            throw $e;
-        }
+        return config('lookup.xbl.endpoint.' . $this->keyType) . $this->key;
     }
 
-    private function getUrl(?string $username, ?string $id): string
+    public function cachePrefix(): string
     {
-        $keyType = $username ? 'username' : 'id';
-        $key = $username ?? $id;
-        return config('lookup.xbl.endpoint.' . $keyType) . $key;
+        return config('lookup.services.xbl.cacheKey');
     }
 }

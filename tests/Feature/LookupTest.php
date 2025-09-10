@@ -7,7 +7,10 @@ use Illuminate\Support\Facades\Http;
 
 class LookupTest extends TestCase
 {
-    /** @test */
+    /**
+     * @test
+     * @group minecraft
+     */
     public function lookup_minecraft_profile_by_username()
     {
         Http::fake(
@@ -26,7 +29,10 @@ class LookupTest extends TestCase
             ]]);
     }
 
-    /** @test */
+    /**
+     * @test
+     * @group minecraft
+     */
     public function lookup_minecraft_profile_by_uuid()
     {
         Http::fake(
@@ -44,7 +50,10 @@ class LookupTest extends TestCase
             ]]);
     }
 
-    /** @test */
+    /**
+     * @test
+     * @group steam
+     */
     public function lookup_steam_profile_by_username()
     {
         $this->getJson('/lookup?type=steam&username=Notch')
@@ -55,7 +64,10 @@ class LookupTest extends TestCase
         Http::assertNothingSent();
     }
 
-    /** @test */
+    /**
+     * @test
+     * @group steam
+     */
     public function lookup_steam_profile_by_uuid()
     {
         Http::fake(
@@ -80,7 +92,10 @@ class LookupTest extends TestCase
             );
     }
 
-    /** @test */
+    /**
+     * @test
+     * @group xbl
+     */
     public function lookup_xbl_profile_by_uuid()
     {
         Http::fake(
@@ -105,7 +120,10 @@ class LookupTest extends TestCase
                 ]);
     }
 
-    /** @test */
+    /**
+     * @test
+     * @group xbl
+     */
     public function lookup_xbl_profile_by_username()
     {
         HTTP::fake(

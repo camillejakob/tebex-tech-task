@@ -2,21 +2,29 @@
 
 namespace App\Services;
 
-use App\Contracts\LookupService;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Validation\ValidationException;
 
-class SteamService implements LookupService
+class SteamService extends AbstractLookupService
 {
+    public string $keyType = 'id';
+    public string $key;
 
-    public static function type(): string
+    public static function service(): string
     {
         return 'steam';
     }
 
+    protected function endpoint(): string
+    {
+        return config('lookup.steam.endpoint.id') . $this->key;
+    }
+
+    public function cachePrefix(): string
+    {
+        return config('lookup.services.steam.cacheKey');
+    }
+
     /**
-     * @throws RequestException
      * @throws ValidationException
      */
     public function lookup(?string $username, ?string $id): mixed
@@ -27,24 +35,6 @@ class SteamService implements LookupService
             ]);
         }
 
-        $url = $this->getUrl(id: $id);
-
-        try {
-            $response = Http::get($url)->throw();
-
-            $result = json_decode($response->body());
-
-            // todo: cache result?
-
-            return $result;
-        } catch (\Exception $e) {
-            report($e);
-            throw $e;
-        }
-    }
-
-    private function getUrl(?string $id): string
-    {
-        return config('lookup.steam.endpoint.id') . $id;
+        return parent::lookup(username: null, id: $id);
     }
 }
