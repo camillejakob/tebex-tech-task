@@ -49,21 +49,22 @@ class LookupTest extends TestCase
     }
 
     /** @test */
-//    public function lookup_steam_profile_by_username()
-//    {
-//        HTTP::fake([
-//            'https://ident.tebex.io/usernameservices/4/username/' => Http::response([
-//                'id' => '76561198000000000',
-//                'username' => 'Notch',
-//                'avatar'   => 'https://crafatar.com/avatars069a79f444e94726a5befca90e38aaf5',
-//            ])
-//        ]);
-//
-//        $this->getJson('/lookup?type=steam&username=Notch')
-//            ->assertInvalid([
-//                'username' => 'Steam only supports IDs'
-//            ]);
-//    }
+    public function lookup_steam_profile_by_username()
+    {
+        $this->markTestSkipped();
+        HTTP::fake([
+            'https://ident.tebex.io/usernameservices/4/username/' => Http::response([
+                'id' => '76561198000000000',
+                'username' => 'Notch',
+                'avatar'   => 'https://crafatar.com/avatars069a79f444e94726a5befca90e38aaf5',
+            ])
+        ]);
+
+        $this->getJson('/lookup?type=steam&username=Notch')
+            ->assertInvalid([
+                'username' => 'Steam only supports IDs'
+            ]);
+    }
 
     /** @test */
     public function lookup_steam_profile_by_uuid()
