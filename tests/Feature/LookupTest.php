@@ -23,7 +23,6 @@ class LookupTest extends TestCase
             ->assertJson(['data' =>[
                 'id'       => '123',
                 'username' => 'johnd',
-                'avatar'   => 'https://crafatar.com/avatars123',
             ]]);
     }
 

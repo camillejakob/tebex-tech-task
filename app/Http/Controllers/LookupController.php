@@ -1,9 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Gateways\LookupGateway;
+use App\Http\Resources\UserProfileResource;
 
 /**
  * Class LookupController
@@ -12,90 +15,21 @@ use Illuminate\Http\Request;
  */
 class LookupController extends Controller
 {
-    public function lookup(Request $request) {
-        if ($request->get('type') == 'minecraft') {
-            if ($request->get('username')) {
-                $username = $request->get('username');
-                $userId = false;
-            }
-            if ($request->get('id')){
-                $username=false;
-                $userId = $request->get('id');
-            }
+    public function lookup(Request $request, LookupGateway $gateway): UserProfileResource
+    {
 
-            if ($username) {
-                $guzzle = new Client();
-                $response = $guzzle->get(
-                    "https://api.mojang.com/users/profiles/minecraft/{$username}"
-                );
+        // validating in the controller as it is short
+        // todo: move to a custom validation class if payload increases
+        // or if we want to handle edge cases from within the validation
+        $data = $request->validate([
+            'username' => 'nullable|string',
+            'id' => 'nullable|string',
+            'type' => 'required|string|in:xbl,steam,minecraft'
+        ]);
 
-                $match = json_decode($response->getBody()->getContents());
+        $profile = $gateway->resolve($data['type'])
+            ->lookup($data['username'] ?? null, $data['id'] ?? null);
 
-                return [
-                    'username' => $match->name,
-                    'id' => $match->id,
-                    'avatar' => "https://crafatar.com/avatars" . $match->id
-                ];
-            }
-
-            if ($userId)
-            {
-                $guzzle = new Client();
-                $response = $guzzle->get(
-                    "https://sessionserver.mojang.com/session/minecraft/profile/{$userId}"
-                );
-
-                $match = json_decode($response->getBody()->getContents());
-                return [
-                    'username' => $match->name,
-                    'id' => $match->id,
-                    'avatar' => "https://crafatar.com/avatars" . $match->id
-                ];
-            }
-        } elseif ($request->get('type')=='steam') {
-            if ($request->get("username")) {
-                die("Steam only supports IDs");
-            } else {
-                $id = $request->get("id");
-                $guzzle = new Client();
-                $url = "https://ident.tebex.io/usernameservices/4/username/{$id}";
-
-                $match = json_decode($guzzle->get($url)->getBody()->getContents());
-
-                return [
-                    'username' => $match->username,
-                    'id' => $match->id,
-                    'avatar' => $match->meta->avatar
-                ];
-            }
-
-        }elseif($request->get('type') === 'xbl'){
-            if ($request->get("username")) {
-                $guzzle = new Client();
-                $response = $guzzle->get("https://ident.tebex.io/usernameservices/3/username/" . $request->get("username") . "?type=username");
-                $profile = json_decode($response->getBody()->getContents());
-
-                return [
-                    'username' => $profile->username,
-                    'id' => $profile->id,
-                    'avatar' => $profile->meta->avatar
-                ];
-            }
-
-            if ($request->get("id")) {
-                $id = $request->get("id");
-                $guzzle = new Client();
-                $response = $guzzle->get("https://ident.tebex.io/usernameservices/3/username/" . $id);
-                $profile = json_decode($response->getBody()->getContents());
-
-                return [
-                    'username' => $profile->username,
-                    'id' => $profile->id,
-                    'avatar' => $profile->meta->avatar
-                ];
-            }
-        }
-        //We can't handle this - maybe provide feedback?
-        die();
+        return new UserProfileResource($profile);
     }
 }
