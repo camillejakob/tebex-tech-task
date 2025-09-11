@@ -58,7 +58,8 @@ class LookupTest extends TestCase
     {
         $this->getJson('/lookup?type=steam&username=Notch')
             ->assertInvalid([
-                'username' => 'Steam only supports IDs'
+                'username' => 'Steam only supports IDs.',
+                'id' => 'Steam id is required.'
             ]);
 
         Http::assertNothingSent();
@@ -154,6 +155,26 @@ class LookupTest extends TestCase
         $this->getJson('/lookup?type=psn&username=johnd')
             ->assertInvalid([
                 'type' => 'The selected type is invalid.',
+            ]);
+    }
+
+    /** @test */
+    public function cannot_lookup_minecraft_without_id_or_username()
+    {
+        $this->getJson('/lookup?type=minecraft')
+            ->assertInvalid([
+                'id' => 'The id field is required when username is not present.',
+                'username' => 'The username field is required when id is not present.',
+            ]);
+    }
+
+    /** @test */
+    public function cannot_lookup_xbl_without_id_or_username()
+    {
+        $this->getJson('/lookup?type=xbl')
+            ->assertInvalid([
+                'id' => 'The id field is required when username is not present.',
+                'username' => 'The username field is required when id is not present.',
             ]);
     }
 }

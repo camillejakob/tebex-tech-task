@@ -29,12 +29,6 @@ class SteamService extends AbstractLookupService
      */
     public function lookup(?string $username, ?string $id): mixed
     {
-        if ($username) {
-            throw ValidationException::withMessages([
-                'username' => ['Steam only supports IDs']
-            ]);
-        }
-
         return parent::lookup(username: null, id: $id);
     }
 }

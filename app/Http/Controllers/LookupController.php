@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Gateways\LookupGateway;
+use App\Http\Requests\LookupRequest;
 use App\Http\Resources\UserProfileResource;
 
 /**
@@ -15,20 +16,10 @@ use App\Http\Resources\UserProfileResource;
  */
 class LookupController extends Controller
 {
-    public function lookup(Request $request, LookupGateway $gateway): UserProfileResource
+    public function lookup(LookupRequest $request, LookupGateway $gateway): UserProfileResource
     {
-
-        // validating in the controller as it is short
-        // todo: move to a custom validation class if payload increases
-        // or if we want to handle edge cases from within the validation
-        $data = $request->validate([
-            'username' => 'nullable|string',
-            'id' => 'nullable|string',
-            'type' => 'required|string|in:xbl,steam,minecraft'
-        ]);
-
-        $profile = $gateway->resolve($data['type'])
-            ->lookup($data['username'] ?? null, $data['id'] ?? null);
+        $profile = $gateway->resolve($request->get('type'))
+            ->lookup($request->get('username'), $request->get('id'));
 
         return new UserProfileResource($profile);
     }
