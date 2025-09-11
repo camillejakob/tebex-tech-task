@@ -25,7 +25,7 @@ class LookupRequest extends FormRequest
     {
         $rules = [
             'username' => ['required_without:id', 'nullable', 'string'],
-            'id' => ['required_without:username', 'required_if:type,steam', 'nullable', 'string'],
+            'id' => ['bail', 'required_if:type,steam', 'required_without:username', 'nullable', 'string'],
             'type' => ['required', 'string', 'in:xbl,steam,minecraft'],
         ];
 

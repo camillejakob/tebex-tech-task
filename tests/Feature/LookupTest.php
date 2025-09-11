@@ -177,4 +177,13 @@ class LookupTest extends TestCase
                 'username' => 'The username field is required when id is not present.',
             ]);
     }
+
+    /** @test */
+    public function cannot_lookup_steam_without_id()
+    {
+        $this->getJson('/lookup?type=steam')
+            ->assertInvalid([
+                'id' => 'Steam id is required.'
+            ]);
+    }
 }
